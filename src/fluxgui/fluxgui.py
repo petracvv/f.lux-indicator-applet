@@ -1,7 +1,6 @@
 #!/usr/bin/python
-import appindicator
 import errno
-import gtk
+import gtk, gobject
 import gtk.glade
 import gconf
 import sys
@@ -11,6 +10,12 @@ import signal
 from xdg.DesktopEntry import DesktopEntry
 
 VERSION = "1.1.8"
+
+try:
+    import appindicator
+    loaded_indicator = True
+except ImportError, ex:
+    loaded_indicator = False
 
 
 class Fluxgui:
@@ -175,57 +180,71 @@ class Indicator:
         self.setup_indicator()
 
     def setup_indicator(self):
-        self.indicator = appindicator.Indicator(
-          "fluxgui-indicator",
-          "fluxgui",
-          appindicator.CATEGORY_APPLICATION_STATUS)
-        self.indicator.set_status(appindicator.STATUS_ACTIVE)
+        
+        if loaded_indicator:
+            self.indicator = appindicator.Indicator(
+                "fluxgui-indicator",
+                "fluxgui",
+                appindicator.CATEGORY_APPLICATION_STATUS)
+            self.indicator.set_status(appindicator.STATUS_ACTIVE)
+            self.indicator.set_icon('fluxgui')
+            self.indicator.set_menu(self.setup_menu())
+            
+          
+        else:
+            self.tray = gtk.StatusIcon()
+            self.tray.set_from_icon_name('fluxgui')
+            self.tray.set_visible(True)
 
         # Check for special Ubuntu themes. copied from lookit
 
-        try:
-            theme = gtk.gdk.screen_get_default().get_setting('gtk-icon-theme-name')
-        except:
-            self.indicator.set_icon('fluxgui')
-        else:
-          if theme == 'ubuntu-mono-dark':
-              self.indicator.set_icon('fluxgui-dark')
-          elif theme == 'ubuntu-mono-light':
-              self.indicator.set_icon('fluxgui-light')
-          else:
-              self.indicator.set_icon('fluxgui')
+        #try:
+        #    theme = gtk.gdk.screen_get_default().get_setting('gtk-icon-theme-name')
+        #except:
+        #    self.indicator.set_icon('fluxgui')
+        #else:
+        #  if theme == 'ubuntu-mono-dark':
+        #      self.indicator.set_icon('fluxgui-dark')
+        #  elif theme == 'ubuntu-mono-light':
+        #      self.indicator.set_icon('fluxgui-light')
+        #  else:
+        #      self.indicator.set_icon('fluxgui')
 
-        self.indicator.set_menu(self.setup_menu())
-
-    def setup_menu(self):
-        menu = gtk.Menu()
+   # def setup_menu(self):
+        self.menu = gtk.Menu()
 
         self.item_turn_off = gtk.MenuItem("_Pause f.lux")
         self.item_turn_off.connect("activate", self.main.pause_xflux)
         self.item_turn_off.show()
-        menu.append(self.item_turn_off)
+        self.menu.append(self.item_turn_off)
 
         self.item_turn_on = gtk.MenuItem("_Unpause f.lux")
         self.item_turn_on.connect("activate", self.main.unpause_xflux)
         self.item_turn_on.hide()
-        menu.append(self.item_turn_on)
+        self.menu.append(self.item_turn_on)
 
         item = gtk.MenuItem("_Preferences")
         item.connect("activate", self.main.open_preferences)
         item.show()
-        menu.append(item)
+        self.menu.append(item)
 
         item = gtk.SeparatorMenuItem()
         item.show()
-        menu.append(item)
+        self.menu.append(item)
 
         item = gtk.MenuItem("Quit")
         item.connect("activate", self.main.exit)
         item.show()
-        menu.append(item)
+        self.menu.append(item)
 
-        return menu
-
+        if loaded_indicator:
+                self.indicator.set_menu(self.menu)
+        else:
+           self.tray.connect('popup-menu', self.right_click_event)
+    
+    def right_click_event(self, icon, button, time):
+        self.menu.popup(None, None, gtk.status_icon_position_menu, button, time, self.tray)
+            
     def main(self):
         gtk.main()
 
