@@ -181,14 +181,31 @@ class Indicator:
 
     def setup_indicator(self):
         
+        
+        # Uses basic gtk status icon if appindicator not available
+        # Basic use taken from Jupiter applet
         if loaded_indicator:
             self.indicator = appindicator.Indicator(
                 "fluxgui-indicator",
                 "fluxgui",
                 appindicator.CATEGORY_APPLICATION_STATUS)
             self.indicator.set_status(appindicator.STATUS_ACTIVE)
-            self.indicator.set_icon('fluxgui')
-            self.indicator.set_menu(self.setup_menu())
+            
+            # Check for special Ubuntu themes. copied from lookit
+            try:
+                theme = gtk.gdk.screen_get_default().get_setting('gtk-icon-theme-name')
+            except:
+                self.indicator.set_icon('fluxgui')
+            else:
+                if theme == 'ubuntu-mono-dark':
+                    self.indicator.set_icon('fluxgui-dark')
+                elif theme == 'ubuntu-mono-light':
+                    self.indicator.set_icon('fluxgui-light')
+                else:
+                    self.indicator.set_icon('fluxgui')
+
+            
+            
             
           
         else:
@@ -196,21 +213,10 @@ class Indicator:
             self.tray.set_from_icon_name('fluxgui')
             self.tray.set_visible(True)
 
-        # Check for special Ubuntu themes. copied from lookit
+        
 
-        #try:
-        #    theme = gtk.gdk.screen_get_default().get_setting('gtk-icon-theme-name')
-        #except:
-        #    self.indicator.set_icon('fluxgui')
-        #else:
-        #  if theme == 'ubuntu-mono-dark':
-        #      self.indicator.set_icon('fluxgui-dark')
-        #  elif theme == 'ubuntu-mono-light':
-        #      self.indicator.set_icon('fluxgui-light')
-        #  else:
-        #      self.indicator.set_icon('fluxgui')
-
-   # def setup_menu(self):
+       
+   
         self.menu = gtk.Menu()
 
         self.item_turn_off = gtk.MenuItem("_Pause f.lux")
