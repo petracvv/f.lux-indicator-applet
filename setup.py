@@ -4,7 +4,11 @@ from distutils.core import setup
 
 setup(name = "fluxgui",
     version = "1.1.8",
+<<<<<<< HEAD
     description = "f.lux indicator applet  better lightning for your computer",
+=======
+    description = "f.lux indicator applet - better lighting for your computer",
+>>>>>>> upstream/master
     author = "Kilian Valkhof, Michael and Lorna Herf",
     author_email = "kilian@kilianvalkhof.com",
     url = "http://www.stereopsis.com/flux/",
