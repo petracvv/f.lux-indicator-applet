@@ -2,13 +2,15 @@
 
 from distutils.core import setup
 
-setup(name = "f.lux indicator applet",
+setup(name = "fluxgui",
     version = "1.1.8",
-    description = "f.lux indicator applet - better lightning for your computer",
+    description = "f.lux indicator applet  better lightning for your computer",
     author = "Kilian Valkhof, Michael and Lorna Herf",
     author_email = "kilian@kilianvalkhof.com",
     url = "http://www.stereopsis.com/flux/",
     license = "MIT license",
+    maintainer = "Mihai Petracovici"
+    maintainer_email = "dan.petracovici@gmail.com"
     package_dir = {'fluxgui' : 'src/fluxgui'},
     packages = ["fluxgui",],
     package_data = {"fluxgui" : ["*.glade"] },
